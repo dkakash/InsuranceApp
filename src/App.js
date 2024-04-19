@@ -1,23 +1,46 @@
 import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
+import Header from './components/Header';
+import Home from './components/Home';
+import Login from './components/Login'
+import Register from './components/Register';
+import HealthInsurance from './components/HealthInsurance'
+import AutoInsurance from './components/AutoInsurance';
+import Footer from './components/Footer';
+import SubHeader from './components/SubHeader';
+import HealthDashboard from './components/HealthDashboard';
+import React, { useEffect, useState } from 'react';
+import UserHealthInsuranceRecords from './components/UserHealthInsuranceRecords';
+import AboutUs from './components/AboutUs';
+import ContactUs from './components/ContactUs';
+const App = () => {
+  const [user, setUser] = useState('')
 
-function App() {
+    useEffect(()=>{
+        let u = sessionStorage.getItem('user');
+        setUser(JSON.parse(u));
+        
+    }, [])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Router>
+        <Header />
+        {user && user.username && <SubHeader />}
+        <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/health-insurance" element={<HealthInsurance />} />
+        <Route path="/automobile-insurance" element={<AutoInsurance />} />
+        <Route path="/agent/healthDashboard" element={<HealthDashboard />} />
+        <Route path="/user/requests" element={<UserHealthInsuranceRecords />} />
+        <Route path="/aboutUs" element={<AboutUs />} />
+        <Route path="/contactUs" element={<ContactUs />} />
+        </Routes>
+        <Footer />
+      </Router>
     </div>
   );
 }

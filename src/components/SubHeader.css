@@ -1,0 +1,47 @@
+.sub-header {
+    background-color: #f4f4f4;
+    padding: 10px 0;
+    text-align: center; /* Center-align the content */
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.sub-nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Center-align the flex items */
+}
+
+.sub-nav-links li {
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+.sub-nav-links li:last-child {
+    margin-right: 0;
+}
+
+.welcome-text {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Additional styling for the button */
+.sub-nav-links button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: inherit;
+    text-decoration: none;
+    color: #333;
+}
+
+.sub-nav-links button:hover {
+    text-decoration: underline;
+}

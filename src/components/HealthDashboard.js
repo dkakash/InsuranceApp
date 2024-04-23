@@ -393,6 +393,7 @@ const HealthDashboard = () => {
     const [openRecommendDialog, setOpenRecommendDialog] = useState(false);
     const [userQuery, setUserQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [requestId, setRequestId] = useState(null)
 
     useEffect(() => {
         fetchData();
@@ -436,6 +437,7 @@ const HealthDashboard = () => {
 
     const handlePrepareQuotes = () => {
         fetchOpenAiResponse();
+        updateStatusForQuote();
     };
 
     const fetchOpenAiResponse = async () => {
@@ -494,6 +496,7 @@ const HealthDashboard = () => {
 
     const handleView = async (requestID) => {
         try {
+            setRequestId(requestID)
             const response = await fetch(`http://localhost:8000/api/healthInsurance/status/${requestID}`, {
                 method: 'PATCH',
                 headers: {
@@ -520,6 +523,39 @@ const HealthDashboard = () => {
             console.error('Error updating health insurance request:', error);
         }
     };
+
+
+
+    const updateStatusForQuote = async (requestID) =>{
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/healthInsurance/status/${requestId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'Quotes Ready' })
+            });
+
+            if (response.ok) {
+                const updatedInsurances = healthInsurances.map(insurance => {
+                    if (insurance.requestID === requestID) {
+                        return { ...insurance, status: 'Quotes Ready' };
+                    }
+                    return insurance;
+                });
+                setHealthInsurances(updatedInsurances);
+
+                // const selected = healthInsurances.find(insurance => insurance.requestID === requestID);
+                // setSelectedInsurance(selected);
+
+                // handleOpenRecommendDialog();
+            }
+        } catch (error) {
+            console.error('Error updating health insurance request:', error);
+        }
+
+    }
 
     const handleClosePopup = () => {
         setSelectedInsurance(null);

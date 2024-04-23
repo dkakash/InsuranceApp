@@ -443,7 +443,7 @@ const HealthDashboard = () => {
     const fetchOpenAiResponse = async () => {
         setIsLoading(true); // Set loading state to true
         const prompt = generateQuery(selectedInsurance);
-        const apiKey = 'Bearer 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';
+        const apiKey = '';
         const apiUrl = 'https://api.openai.com/v1/completions';
         const headers = {
             'Content-Type': 'application/json',
@@ -557,6 +557,33 @@ const HealthDashboard = () => {
 
     }
 
+    // Function to submit quotes to API endpoint
+    const handleSubmitQuotes = async () => {
+        console.log(requestId, healthInsuranceQuote)
+        try {
+            const response = await fetch(`http://localhost:8000/api/healthInsurance/quotes`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    requestID: requestId,
+                    quotes: healthInsuranceQuote
+                })
+            });
+
+            if (response.ok) {
+                console.log('Quotes submitted successfully');
+                // Add any logic for successful submission
+            } else {
+                console.error('Failed to submit quotes');
+            }
+        } catch (error) {
+            console.error('Error submitting quotes:', error);
+        }
+    };
+
+
     const handleClosePopup = () => {
         setSelectedInsurance(null);
     };
@@ -652,15 +679,19 @@ const HealthDashboard = () => {
                         </div>
                         {isLoading ? ( // Conditional rendering based on loading state for healthInsuranceQuote
                             <p>Loading...</p>
-                        ) : (
-                            healthInsuranceQuote.map((quote, index) => (
+                        ) : (<>
+                            {healthInsuranceQuote.map((quote, index) => (
                                 <div key={index}>
                                     <p>{quote.Name}</p>
                                     <p>{quote.Description}</p>
                                     <p>{quote.Address}</p>
                                     {/* <p>{quote.Name}</p> */}
                                 </div>
-                            ))
+                            ))}
+                            <div>
+                                <button onClick={handleSubmitQuotes}>Submit Quotes</button>
+                            </div>
+                            </>
                         )}
                     </DialogContent>
                 </Dialog>

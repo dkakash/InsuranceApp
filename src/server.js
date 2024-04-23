@@ -25,7 +25,7 @@ app.use(express.json());
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, '/Users/akash/Desktop/UML/Project/insurance-app/public/uploads'); // Public uploads directory
+    cb(null, 'uploads'); // Uploads directory
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}_${file.originalname}`);
@@ -415,6 +415,125 @@ if (updateResponse.result === 'updated' || updateResponse.result === 'noop') {
   } catch (error) {
     console.error('Error updating health insurance status:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+
+
+// API endpoint to fetch quotes based on requestID
+app.get('/api/healthInsurance/quotes/:requestId', async (req, res) => {
+  const requestId = req.params.requestId;
+  try {
+      const body = await client.search({
+          index: 'healthinsurance',
+          body: {
+              query: {
+                  match: {
+                      'requestID': requestId
+                  }
+              }
+          }
+      });
+
+      if (body.hits.total.value === 1) {
+          const quotes = body.hits.hits[0]._source.quotes;
+          res.status(200).json({ quotes });
+      } else {
+          res.status(404).json({ error: 'Quotes not found for the given requestId' });
+      }
+  } catch (error) {
+      console.error("Error fetching quotes:", error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+// // API endpoint to update document with health insurance quotes
+// app.post('/api/healthInsurance/quotes', async (req, res) => {
+//   const { requestId, quotes } = req.body;
+// console.log(requestId, quotes)
+//   try {
+//       const response = await client.update({
+//           index: 'healthinsurance', // Index name
+//           id: requestId, // Document ID (requestID)
+//           body: {
+//               doc: {
+//                   quotes: quotes // Add the quotes field to the document
+//               }
+//           }
+//       });
+
+//       res.status(200).json({ message: 'Document updated successfully', response });
+//   } catch (error) {
+//       console.error("Error updating document:", error);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
+
+// API endpoint to update document with health insurance quotes
+app.post('/api/healthInsurance/quotes', async (req, res) => {
+  const { requestID, quotes } = req.body;
+  console.log(requestID, quotes);
+  try {
+      // Use Elasticsearch search to find the document with matching requestID
+      const body = await client.search({
+          index: 'healthinsurance',
+          body: {
+              query: {
+                    match: { requestID: requestID }
+              }
+          }
+      });
+
+      // Check if any documents matched the query
+      console.log('Akash', body);
+      if (body.hits.total.value === 1) {
+          const documentId = body.hits.hits[0]._id;
+
+          // Update the document with the new quotes
+          const response = await client.update({
+              index: 'healthinsurance',
+              id: documentId,
+              body: {
+                  doc: {
+                      quotes: quotes
+                  }
+              }
+          });
+
+          res.status(200).json({ message: 'Document updated successfully', response });
+      } else {
+          res.status(404).json({ error: 'Document not found' });
+      }
+  } catch (error) {
+      console.error("Error updating document:", error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// API endpoint to fetch quotes based on requestID
+app.get('/api/healthInsurance/quotes/:requestId', async (req, res) => {
+  const requestId = req.params.requestId;
+  try {
+      const { body: searchResponse } = await client.search({
+          index: 'healthinsurance',
+          body: {
+              query: {
+                  match: {
+                      'requestID': requestId
+                  }
+              }
+          }
+      });
+
+      if (searchResponse.hits.total.value === 1) {
+          const quotes = searchResponse.hits.hits[0]._source.quotes;
+          res.status(200).json({ quotes });
+      } else {
+          res.status(404).json({ error: 'Quotes not found for the given requestId' });
+      }
+  } catch (error) {
+      console.error("Error fetching quotes:", error);
+      res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

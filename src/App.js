@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import UserHealthInsuranceRecords from './components/UserHealthInsuranceRecords';
 import AboutUs from './components/AboutUs';
 import ContactUs from './components/ContactUs';
+import QuoteDisplay from './components/QuoteDisplay';
 const App = () => {
   const [user, setUser] = useState('')
 
@@ -38,6 +39,8 @@ const App = () => {
         <Route path="/user/requests" element={<UserHealthInsuranceRecords />} />
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/contactUs" element={<ContactUs />} />
+        <Route path="/user/quotes/:requestId" element={<QuoteDisplay />} />
+        
         </Routes>
         <Footer />
       </Router>

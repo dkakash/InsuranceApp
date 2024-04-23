@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {Link} from 'react-router-dom';
 
 const UserHealthInsuranceRecords = () => {
   const [healthInsurances, setHealthInsurances] = useState([]);
@@ -65,7 +66,13 @@ const UserHealthInsuranceRecords = () => {
                 <td>{insurance.preExistingConditions}</td>
                 <td>{insurance.coverageAmount}</td>
                 <td>{insurance.type}</td>
-                <td>{insurance.status}</td>
+                <td>
+                    {insurance.status === 'Quotes Ready' ? (
+                      <Link to={`/user/quotes/${insurance.requestID}`}><button>View Quotes</button></Link>
+                    ) : (
+                      <span>{insurance.status}</span>
+                    )}
+                  </td>
               </tr>
             ))}
           </tbody>

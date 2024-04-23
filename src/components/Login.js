@@ -4,7 +4,7 @@ import './Login.css';
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [usertype, setUsertype] = useState('');
+  const [usertype, setUsertype] = useState('customer');
   const [error, setError] = useState(false);
 
   const handleSubmit = async (e) => {

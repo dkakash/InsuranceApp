@@ -205,7 +205,10 @@ const HealthInsurance = () => {
     phone: '',
     age: '',
     gender: '',
-    smoker: false,
+    smoker: '',
+    annualIncome:'',
+    marriageStatus:'',
+    zipCode:'',
     preExistingConditions: '',
     coverageAmount: '',
     idDocument: null,
@@ -232,6 +235,9 @@ const HealthInsurance = () => {
       requestBody.append('age', formData.age);
       requestBody.append('gender', formData.gender);
       requestBody.append('smoker', formData.smoker);
+      requestBody.append('annualIncome', formData.annualIncome);
+      requestBody.append('marriageStatus', formData.marriageStatus);
+      requestBody.append('zipCode', formData.zipCode);
       requestBody.append('preExistingConditions', formData.preExistingConditions);
       requestBody.append('coverageAmount', formData.coverageAmount);
       requestBody.append('idDocument', formData.idDocument);
@@ -250,10 +256,13 @@ const HealthInsurance = () => {
         phone: '',
         age: '',
         gender: '',
-        smoker: false,
+        smoker: '',
         preExistingConditions: '',
         coverageAmount: '',
         idDocument: null,
+        annualIncome:'',
+        marriageStatus:'',
+        zipCode:'',
       });
     } catch (error) {
       console.error('Error submitting health insurance request:', error);
@@ -409,6 +418,47 @@ const HealthInsurance = () => {
                 required
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+  <TextField
+    label="Smoker (Yes/No)"
+    name="smoker"
+    value={formData.smoker}
+    onChange={handleChange}
+    fullWidth
+    required
+  />
+</Grid>
+<Grid item xs={12} sm={6}>
+  <TextField
+    label="Annual Income"
+    name="annualIncome"
+    value={formData.annualIncome}
+    onChange={handleChange}
+    fullWidth
+    required
+  />
+</Grid>
+<Grid item xs={12} sm={6}>
+  <TextField
+    label="Marriage Status"
+    name="marriageStatus"
+    value={formData.marriageStatus}
+    onChange={handleChange}
+    fullWidth
+    required
+  />
+</Grid>
+<Grid item xs={12} sm={6}>
+  <TextField
+    label="Zip Code"
+    name="zipCode"
+    value={formData.zipCode}
+    onChange={handleChange}
+    fullWidth
+    required
+  />
+</Grid>
+
             {/* <Grid item xs={12}>
               <FormControl fullWidth required>
                 <InputLabel htmlFor="idDocument">

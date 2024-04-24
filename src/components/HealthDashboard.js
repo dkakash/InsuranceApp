@@ -463,7 +463,7 @@
 //     const fetchOpenAiResponse = async () => {
 //         setIsLoading(true); // Set loading state to true
 //         const prompt = generateQuery(selectedInsurance);
-//         const apiKey = 'Bearer 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';
+//         const apiKey = '';
 //         const apiUrl = 'https://api.openai.com/v1/completions';
 //         const headers = {
 //             'Content-Type': 'application/json',

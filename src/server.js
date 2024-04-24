@@ -132,7 +132,16 @@ app.post('/api/healthInsurance', upload.single('idDocument'), async (req, res) =
       coverageAmount,
   } = req.body;
 
-  const { path } = req.file; // Uploaded file path
+  let restructuredPath;
+
+if (req.file) {
+    const { path } = req.file;
+    // You can perform any restructuring or additional processing of the path here if needed
+    restructuredPath = path;
+} else {
+    // Handle the case where req.file is not available
+    restructuredPath = ''; // Or whatever default value you want to assign
+}// Uploaded file path
 
   try {
       const newHealthInsurance = new healthModel({
@@ -150,7 +159,7 @@ app.post('/api/healthInsurance', upload.single('idDocument'), async (req, res) =
           zipCode,
           preExistingConditions,
           coverageAmount,
-          idDocument: path, // Save the file path in MongoDB
+          idDocument: restructuredPath, // Save the file path in MongoDB
           status: 'Submitted',
           type: 'Health',
       });

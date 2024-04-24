@@ -627,6 +627,88 @@ app.get('/api/healthInsurance/quotes/:requestId', async (req, res) => {
 //     }
 // });
 
+// Endpoint to handle payment submission and update Elasticsearch
+app.post('/api/insurance/payment', async (req, res) => {
+  try {
+      // Extract selected quote and payment details from request body
+      const { selectedQuote, paymentDetails } = req.body;
+
+      // Extract requestID from the selected quote
+      const requestID = selectedQuote.requestID;
+
+      // Query Elasticsearch to find the document with the matching requestID
+      const body = await client.search({
+        index: 'healthinsurance',
+        body: {
+            query: {
+                  match: { requestID: requestID }
+            }
+        }
+    });
+
+      // Extract the document ID from the search response
+      const documentID = body.hits.hits[0]._id;
+
+      // Update the document in Elasticsearch with selected quote and payment details
+      const updateResponse  = await client.update({
+          index: 'healthinsurance', // Replace with your Elasticsearch index name
+          id: documentID,
+          body: {
+              doc: {
+                  selectedQuote,
+                  paymentDetails
+              }
+          }
+      });
+
+      // Check if the update was successful
+      if (updateResponse.result === 'updated') {
+          console.log('Document updated successfully');
+          return res.status(200).json({ message: 'Payment details updated successfully' });
+      } else {
+          console.error('Failed to update document:', updateResponse);
+          return res.status(500).json({ message: 'Failed to update payment details' });
+      }
+  } catch (error) {
+      console.error('Error updating payment details:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Endpoint to fetch user's insurance based on UID
+app.get('/api/insurance/user/:uid', async (req, res) => {
+  const { uid } = req.params;
+console.log('uid', uid)
+  // Query Elasticsearch to find the document with the matching UID
+  const body = await client.search({
+      index: 'healthinsurance', // Replace with your Elasticsearch index name
+      body: {
+          query: {
+              match: {
+                  'uid': uid
+              }
+          }
+      }
+  });
+
+  // Extract the insurance data from the search response
+  const insuranceData = body.hits.hits.map(hit => hit._source);
+
+  if (!insuranceData || insuranceData.length === 0) {
+      return res.status(404).json({ message: 'No insurance found for the user' });
+  }
+
+  // Find if there is a selected insurance
+  const selectedInsurance = insuranceData.find(insurance => insurance.selectedQuote);
+
+  if (selectedInsurance) {
+      return res.status(200).json(selectedInsurance);
+  } else {
+      return res.status(404).json({ message: 'No insurance was selected' });
+  }
+});
+
+
 app.post('/api/registerUser', async (req, res) => {
   try {
       const { username, password, repassword, usertype } = req.body;

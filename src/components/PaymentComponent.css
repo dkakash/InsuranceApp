@@ -1,0 +1,74 @@
+/* PaymentComponent.css */
+.payment-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.pay-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pay-button:hover {
+    background-color: #0056b3;
+}
+/* PaymentComponent.css */
+.input-with-image {
+    position: relative;
+}
+
+.card-type-image {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px; /* Position the image to the right side */
+    width: 30px;
+    height: auto;
+    pointer-events: none;
+}
+
+.input-field {
+    padding-right: 40px; /* Adjust this value based on the width of the card image */
+}
+
+.input-field.with-image {
+    padding-right: 70px; /* Adjust this value to add more space for the image */
+}

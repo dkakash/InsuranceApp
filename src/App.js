@@ -15,6 +15,8 @@ import UserHealthInsuranceRecords from './components/UserHealthInsuranceRecords'
 import AboutUs from './components/AboutUs';
 import ContactUs from './components/ContactUs';
 import QuoteDisplay from './components/QuoteDisplay';
+import PaymentComponent from './components/PaymentComponent';
+import UserInsurance from './components/UserInsurance';
 const App = () => {
   const [user, setUser] = useState('')
 
@@ -40,7 +42,8 @@ const App = () => {
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/contactUs" element={<ContactUs />} />
         <Route path="/user/quotes/:requestId" element={<QuoteDisplay />} />
-        
+        <Route path="/payment" element={<PaymentComponent />} />
+        <Route path="/user/insurance" element={<UserInsurance />} />
         </Routes>
         <Footer />
       </Router>

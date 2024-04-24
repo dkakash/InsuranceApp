@@ -30,7 +30,7 @@ const SubHeader = () => {
                     )
                     : (<>
                     <li><Link to="/user/requests">My Requests</Link></li>
-                    <li><Link to="/user/quotes">My Quotes</Link></li>
+                    <li><Link to="/user/insurance">My Insurance</Link></li>
                     </>)}
                     
                 </ul>

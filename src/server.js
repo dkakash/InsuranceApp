@@ -79,6 +79,30 @@ class healthModel {
   }
 }
 
+class AutoInsuranceModel {
+  constructor(data) {
+    this.requestID = data.requestID;
+    this.uid = data.uid;
+    this.firstName = data.firstName;
+    this.lastName = data.lastName;
+    this.email = data.email;
+    this.phone = data.phone;
+    this.age = data.age;
+    this.gender = data.gender;
+    this.vehicleMake = data.vehicleMake;
+    this.vehicleModel = data.vehicleModel;
+    this.vehicleYear = data.vehicleYear;
+    this.vehicleValue = data.vehicleValue;
+    this.coverageAmount = data.coverageAmount;
+    this.vehicleType = data.vehicleType;
+    this.milesDriven = data.milesDriven;
+    this.zipCode = data.zipCode;
+    this.status = data.status || 'Submitted'; // default value
+    this.type = data.type || 'Auto'; // default value
+  }
+}
+
+
 // app.use('/uploads', express.static(__dirname + '/src/uploads'));
 
 // Serve static files from the 'uploads' folder
@@ -112,6 +136,18 @@ async function indexHealthInsurance(data) {
   }
 }
 
+// Function to index data into Elasticsearch for auto insurance
+async function indexAutoInsurance(data) {
+  try {
+      const response = await client.index({
+          index: 'autoinsurance', // Index name for auto insurance
+          body: data
+      });
+      console.log(`Indexed auto insurance data with ID: ${response}`);
+  } catch (error) {
+      console.error('Error indexing auto insurance data:', error);
+  }
+}
 
 app.post('/api/healthInsurance', upload.single('idDocument'), async (req, res) => {
   // Generate a unique request ID
@@ -170,6 +206,60 @@ if (req.file) {
       res.status(201).send('Request added successfully');
   } catch (error) {
       console.error('Error adding health insurance request:', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.post('/api/autoInsurance', async (req, res) => {
+  // Generate a unique request ID
+  const requestID = generateRequestID();
+  const {
+      uid,
+      firstName,
+      lastName,
+      email,
+      phone,
+      age,
+      gender,
+      vehicleMake,
+      vehicleModel,
+      vehicleYear,
+      vehicleValue,
+      coverageAmount,
+      vehicleType,
+      milesDriven,
+      zipCode,
+  } = req.body;
+
+  try {
+      const newAutoInsurance = new AutoInsuranceModel({
+          requestID,
+          uid,
+          firstName,
+          lastName,
+          email,
+          phone,
+          age,
+          gender,
+          vehicleMake,
+          vehicleModel,
+          vehicleYear,
+          vehicleValue,
+          coverageAmount,
+          vehicleType,
+          milesDriven,
+          zipCode,
+          status: 'Submitted',
+          type: 'Auto',
+      });
+
+      // Index data into Elasticsearch or perform any other necessary processing
+      // Index data into Elasticsearch
+      await indexAutoInsurance(newAutoInsurance);
+      res.status(201).send('Request added successfully');
+  } catch (error) {
+      console.error('Error adding auto insurance request:', error);
       res.status(500).send('Internal Server Error');
   }
 });
@@ -246,6 +336,32 @@ app.get('/api/healthInsurance', async (req, res) => {
   }
 });
 
+
+app.get('/api/autoInsurance', async (req, res) => {
+  try {
+    // Query Elasticsearch for auto insurance records
+    const body = await client.search({
+      index: 'autoinsurance', // Index name for auto insurance
+      body: {
+        query: {
+          match_all: {} // Match all documents
+        }
+      }
+    });
+
+    // Extract hits from the search response
+    const autoInsurances = body.hits.hits.map(hit => hit._source);
+
+    if (!autoInsurances || autoInsurances.length === 0) {
+      return res.status(404).json({ message: 'No auto insurance records found' });
+    }
+
+    res.status(200).json(autoInsurances);
+  } catch (error) {
+    console.error('Error retrieving auto insurance records:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
   //Get all insurances for an agent
 //   app.get('/api/healthInsurance', async (req, res) => {
@@ -324,6 +440,49 @@ app.get('/api/user/healthInsurance', async (req, res) => {
   }
 });
 
+//ENDPOINT TO GET BOTH HEALTH AND AUTO INSURANCES FOR A USER /USER/REQUEST
+
+// Route to search for insurance records by UID
+// app.get('/api/user/insurance', async (req, res) => {
+//   const { uid } = req.query;
+
+//   try {
+//     // Validate UID parameter
+//     if (!uid) {
+//       return res.status(400).json({ message: 'UID parameter is required' });
+//     }
+
+//     // Make separate requests to Elasticsearch to search in both indices
+//     const [healthInsuranceResults, autoInsuranceResults] = await Promise.all([
+//       searchInsuranceByIndex('healthinsurance', uid),
+//       searchInsuranceByIndex('autoinsurance', uid)
+//     ]);
+
+//     // Combine the results from both searches
+//     const combinedResults = [...healthInsuranceResults, ...autoInsuranceResults];
+
+//     // Return the combined results to the client
+//     res.status(200).json(combinedResults);
+//   } catch (error) {
+//     console.error('Error searching insurance records:', error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+
+// // Function to search for insurance records in a specific index by UID
+// async function searchInsuranceByIndex(index, uid) {
+//   const response = await axios.post(`http://localhost:9200/${index}/_search`, {
+//     query: {
+//       match: { uid }
+//     }
+//   });
+//   return response.data.hits.hits.map(hit => hit._source);
+// }
+
+// // Start the Express server
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
 
 // // PATCH endpoint to update the status of a health insurance record by requestID
 // app.patch('/api/healthInsurance/:requestID', async (req, res) => {
@@ -427,6 +586,61 @@ if (updateResponse.result === 'updated' || updateResponse.result === 'noop') {
   }
 });
 
+app.patch('/api/autoInsurance/status/:requestID', async (req, res) => {
+  const { requestID } = req.params;
+  const { status } = req.body;
+
+  try {
+    // Validate requestID parameter
+    if (!requestID) {
+      return res.status(400).json({ message: 'RequestID parameter is required' });
+    }
+
+    // Validate status parameter
+    if (!status) {
+      return res.status(400).json({ message: 'Status parameter is required' });
+    }
+
+    // Update the status of the auto insurance record by requestID
+    const body = await client.search({
+      index: 'autoinsurance', // Index name
+      body: {
+        query: {
+          match: { requestID: requestID } // Match documents where requestID field equals the provided requestID
+        }
+      }
+    });
+
+    // Check if any documents are found
+    if (body.hits.total.value === 0) {
+      return res.status(404).json({ message: 'Auto insurance record not found' });
+    }
+
+    // Extract the document ID from the search response
+    const documentId = body.hits.hits[0]._id;
+
+    // Update the status of the auto insurance record by document ID
+    const updateResponse = await client.update({
+      index: 'autoinsurance', // Index name
+      id: documentId, // Document ID
+      body: {
+        doc: {
+          status: status
+        }
+      }
+    });
+
+    // Check if the record was successfully updated
+    if (updateResponse.result === 'updated' || updateResponse.result === 'noop') {
+      return res.status(200).json({ message: 'Status updated successfully' });
+    } else {
+      return res.status(404).json({ message: 'Auto insurance record not found' });
+    }
+  } catch (error) {
+    console.error('Error updating auto insurance status:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // API endpoint to fetch quotes based on requestID
 app.get('/api/healthInsurance/quotes/:requestId', async (req, res) => {
@@ -518,6 +732,48 @@ app.post('/api/healthInsurance/quotes', async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// API endpoint to update document with auto insurance quotes
+app.post('/api/autoInsurance/quotes', async (req, res) => {
+  const { requestID, quotes } = req.body;
+  console.log(requestID, quotes);
+  try {
+      // Use Elasticsearch search to find the document with matching requestID
+      const body = await client.search({
+          index: 'autoinsurance', // Change index to 'autoinsurance'
+          body: {
+              query: {
+                    match: { requestID: requestID }
+              }
+          }
+      });
+
+      // Check if any documents matched the query
+      console.log('Akash', body);
+      if (body.hits.total.value === 1) {
+          const documentId = body.hits.hits[0]._id;
+
+          // Update the document with the new quotes
+          const response = await client.update({
+              index: 'autoinsurance', // Change index to 'autoinsurance'
+              id: documentId,
+              body: {
+                  doc: {
+                      quotes: quotes
+                  }
+              }
+          });
+
+          res.status(200).json({ message: 'Document updated successfully', response });
+      } else {
+          res.status(404).json({ error: 'Document not found' });
+      }
+  } catch (error) {
+      console.error("Error updating document:", error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 // API endpoint to fetch quotes based on requestID
 app.get('/api/healthInsurance/quotes/:requestId', async (req, res) => {

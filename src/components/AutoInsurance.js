@@ -262,7 +262,7 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -281,6 +281,14 @@ import './AutoInsurance.css';
 
 const AutoInsurance = () => {
   const [insuranceQuote, setInsuranceQuote] = useState(null);
+  const [user, setUser] = useState(null);
+    useEffect(() => {
+    // Retrieve user info from session storage
+    const storedUser = sessionStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -306,33 +314,54 @@ const AutoInsurance = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate generating a dummy insurance quote
-    const dummyQuote = {
-      coverageType: 'Comprehensive',
-      annualPremium: Math.floor(Math.random() * 1000 + 500), // Generate a random premium between 500 and 1500
-      deductible: 500, // Dummy deductible amount
-      policyLimit: 10000, // Dummy policy limit amount
-    };
-    setInsuranceQuote(dummyQuote);
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      age: '',
-      gender: '',
-      vehicleMake: '',
-      vehicleModel: '',
-      vehicleYear: '',
-      vehicleValue: '',
-      coverageAmount: '',
-      vehicleType: '',
-      milesDriven: '',
-      zipCode: '',
-    });
+  
+    try {
+      // Append uid to the form data
+      const formDataWithUid = {
+        ...formData,
+        uid: user.uid
+      };
+  
+      const response = await fetch('http://localhost:8000/api/autoInsurance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formDataWithUid), // Send formDataWithUid instead of formData
+      });
+      if (!response.ok) {
+        throw new Error('Failed to submit request');
+      }
+      const data = await response.json();
+      alert('Your auto insurance request has been submitted successfully!');
+      // Assuming the response contains a success message
+      console.log(data);
+      // Reset form data after successful submission
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        age: '',
+        gender: '',
+        vehicleMake: '',
+        vehicleModel: '',
+        vehicleYear: '',
+        vehicleValue: '',
+        coverageAmount: '',
+        vehicleType: '',
+        milesDriven: '',
+        zipCode: '',
+      });
+      // You can optionally handle success feedback or navigate to another page here
+    } catch (error) {
+      console.error('Error submitting auto insurance request:', error);
+      // You can optionally handle error feedback to the user here
+    }
   };
+  
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>

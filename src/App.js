@@ -17,6 +17,7 @@ import ContactUs from './components/ContactUs';
 import QuoteDisplay from './components/QuoteDisplay';
 import PaymentComponent from './components/PaymentComponent';
 import UserInsurance from './components/UserInsurance';
+import AutoDashboard from './components/AutoDashboard';
 const App = () => {
   const [user, setUser] = useState('')
 
@@ -44,6 +45,8 @@ const App = () => {
         <Route path="/user/quotes/:requestId" element={<QuoteDisplay />} />
         <Route path="/payment" element={<PaymentComponent />} />
         <Route path="/user/insurance" element={<UserInsurance />} />
+
+        <Route path="/agent/autoDashboard" element={<AutoDashboard />} />
         </Routes>
         <Footer />
       </Router>
